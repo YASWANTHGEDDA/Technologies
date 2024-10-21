@@ -9,6 +9,8 @@ import Fullstack from './components/Fullstack';
 import Login from './components/Login';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Register from './components/Register';
+import Datascience from './components/Datascience';
+
 
 function App() {
   const menuBtnRef = useRef(null);
@@ -55,24 +57,24 @@ function App() {
     };
   }, []);
 
-  const openTab = (evt, tabName) => {
-    const tabContent = document.getElementsByClassName("tabcontent");
-    const tabLinks = document.getElementsByClassName("tablink");
+  // const openTab = (evt, tabName) => {
+  //   const tabContent = document.getElementsByClassName("tabcontent");
+  //   const tabLinks = document.getElementsByClassName("tablink");
 
-    // Hide all tab content
-    for (let i = 0; i < tabContent.length; i++) {
-      tabContent[i].style.display = "none";
-    }
+  //   // Hide all tab content
+  //   for (let i = 0; i < tabContent.length; i++) {
+  //     tabContent[i].style.display = "none";
+  //   }
 
-    // Remove "active" class from all tab links
-    for (let i = 0; i < tabLinks.length; i++) {
-      tabLinks[i].className = tabLinks[i].className.replace(" activeTab", "");
-    }
+  //   // Remove "active" class from all tab links
+  //   for (let i = 0; i < tabLinks.length; i++) {
+  //     tabLinks[i].className = tabLinks[i].className.replace(" activeTab", "");
+  //   }
 
-    // Show the selected tab and add "active" class
-    document.getElementById(tabName).style.display = "block";
-    evt.currentTarget.className += " activeTab";
-  };
+  //   // Show the selected tab and add "active" class
+  //   document.getElementById(tabName).style.display = "block";
+  //   evt.currentTarget.className += " activeTab";
+  // };
 
   useEffect(() => {
     // By default, open the first tab
@@ -93,8 +95,10 @@ function App() {
             <Frontend />
             <Backend />
             <Fullstack />
+            {/* <Datascience/> */}
           </>
         } />
+        <Route path="/datascience" element={<Datascience />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
