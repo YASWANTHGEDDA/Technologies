@@ -2,64 +2,53 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE_FRONTEND = "yashdocker39/frontend:latest"
-        DOCKER_IMAGE_BACKEND = "yashdocker39/backend:latest"
+        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/YASWANTHGEDDA/Technologies.git'
+                checkout scm
             }
         }
 
-        stage('Build Frontend') {
+        stage('Build Images') {
             steps {
                 script {
-                    sh '''
-                    cd pathfind
-                    npm install
-                    npm run build
-                    docker build -t $DOCKER_IMAGE_FRONTEND .
-                    '''
+                    sh 'docker-compose build'
                 }
             }
         }
 
-        stage('Build Backend') {
+        stage('Run Containers') {
             steps {
                 script {
-                    sh '''
-                    cd server
-                    npm install
-                    docker build -t $DOCKER_IMAGE_BACKEND .
-                    '''
+                    sh 'docker-compose up -d'
                 }
             }
         }
 
-        stage('Push Docker Images') {
+        stage('Post Deployment Health Check') {
             steps {
                 script {
-                    sh '''
-                    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-                    docker push $DOCKER_IMAGE_FRONTEND
-                    docker push $DOCKER_IMAGE_BACKEND
-                    '''
+                    sh 'curl -f http://localhost:3000 || exit 1'
+                    sh 'curl -f http://localhost:5000 || exit 1'
                 }
             }
         }
+    }
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    sh '''
-                    kubectl apply -f k8s/frontend-deployment.yaml
-                    kubectl apply -f k8s/backend-deployment.yaml
-                    kubectl apply -f k8s/mongo-deployment.yaml
-                    '''
-                }
+    post {
+        always {
+            script {
+                sh 'docker-compose down'
             }
+        }
+        success {
+            echo "Build and Deployment Successful"
+        }
+        failure {
+            echo "Build or Deployment Failed"
         }
     }
 }

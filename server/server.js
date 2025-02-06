@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const User = require('./models/User'); // Ensure correct path
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 
@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(cors()); // Enable CORS
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/Register', {
+mongoose.connect('mongodb://localhost:2701r/Register', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => {
