@@ -37,7 +37,7 @@ jobs:
       - name: Build & Push Frontend Docker Image
         working-directory: pathfind  
         run: |
-          docker build -t yashdocker39/mern-frontend:latest -f pathfind/Dockerfile pathfind/
+          docker build -t yashdocker39/mern-frontend:latest .
           docker push yashdocker39/mern-frontend:latest
 
   build-backend:

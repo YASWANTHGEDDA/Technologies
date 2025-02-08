@@ -1,29 +1,28 @@
-# Stage 1: Build the React app
+# Use Node.js as the base image
 FROM node:18-alpine AS build
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json to install dependencies
+# Copy package.json and package-lock.json first (for better caching)
 COPY package.json package-lock.json ./
 
 # Install dependencies
-RUN npm install --legacy-peer-deps
+RUN npm install
 
-# Copy the entire project and build it
+# Copy the entire frontend project (EXCEPT files ignored by .dockerignore)
 COPY . .
+
+# Build the React app
 RUN npm run build
 
-# Stage 2: Serve the built app using Nginx
+# Use Nginx as a lightweight web server
 FROM nginx:alpine
 
-# Remove default Nginx HTML files
-RUN rm -rf /usr/share/nginx/html/*
-
-# Copy the built React app from the previous stage
+# Copy the built frontend from the previous step
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Expose port 80 for serving the application
+# Expose port 80
 EXPOSE 80
 
 # Start Nginx
