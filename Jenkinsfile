@@ -8,13 +8,23 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                checkout scm
+                git 'https://github.com/YASWANTHGEDDA/Technologies.git'
+            }
+        }
+
+        stage('Cleanup') {
+            steps {
+                script {
+                    echo "Stopping and removing any existing containers..."
+                    sh 'docker-compose down || true'
+                }
             }
         }
 
         stage('Build Images') {
             steps {
                 script {
+                    echo "Building Docker images..."
                     sh 'docker-compose build'
                 }
             }
@@ -23,6 +33,7 @@ pipeline {
         stage('Run Containers') {
             steps {
                 script {
+                    echo "Starting Docker containers..."
                     sh 'docker-compose up -d'
                 }
             }
@@ -31,8 +42,13 @@ pipeline {
         stage('Post Deployment Health Check') {
             steps {
                 script {
-                    sh 'curl -f http://localhost:3000 || exit 1'
-                    sh 'curl -f http://localhost:5000 || exit 1'
+                    echo "Performing health check..."
+                    def frontend_status = sh(script: 'curl -f http://localhost:3000', returnStatus: true)
+                    def backend_status = sh(script: 'curl -f http://localhost:5000', returnStatus: true)
+
+                    if (frontend_status != 0 || backend_status != 0) {
+                        error("Health check failed for one or more services.")
+                    }
                 }
             }
         }
@@ -41,14 +57,15 @@ pipeline {
     post {
         always {
             script {
+                echo "Cleaning up..."
                 sh 'docker-compose down'
             }
         }
         success {
-            echo "Build and Deployment Successful"
+            echo "✅ Build and Deployment Successful!"
         }
         failure {
-            echo "Build or Deployment Failed"
+            echo "❌ Build or Deployment Failed!"
         }
     }
 }
